@@ -1,0 +1,72 @@
+ESTUDAAGENTES — EXPLICAÇÕES E DECISÕES DE PROJETO
+=================================================
+
+1. O QUE O TRABALHO PEDE
+Identificar um problema real,
+justificar por que os agentes são úteis, definir responsabilidades, ferramentas,
+orquestração, contexto/memória, guardrails, MVP, testes/evals, observabilidade e
+demonstração. Não exige tema específico ou framework obrigatório.
+
+2. TEMA ESCOLHIDO
+Organização de estudos para universitários: prazos e prioridades concorrentes,
+capacidade de estudo limitada, dificuldade de decidir ordem e planejamento.
+Usuário: estudante que cadastra tarefas acadêmicas.
+Valor: plano diário, avisos de pendências e acompanhamento auditável.
+
+3. AGENTES E RESPONSABILIDADES
+Triagem: recebe tarefas e decide ordem (no modo Ollama). Validamos IDs contra o banco.
+Planejamento: executa alocador determinístico e pode propor dicas contextualizadas.
+Revisão: calcula violações determinísticas e pode descrever riscos.
+Orquestrador: coordena uma única passagem e persiste resultado e trace.
+Humano: aprova explicitamente, sem qualquer ação automática externa.
+
+4. DECISÃO SOBRE INTELIGÊNCIA ARTIFICIAL
+O modo DEMO não usa IA: serve como fallback didático, sem necessidade de Internet,
+GPU, biblioteca ou modelo. NÃO alegue que é um agente inteligente com LLM.
+O modo OLLAMA chama um modelo local para definir ordenação, sugerir dicas e riscos.
+A arquitetura multiagente é modular mas NÃO implementa agentes plenamente autônomos
+com escolha livre de ferramentas ou loops de raciocínio. Essa limitação deve ser
+declarada na apresentação. Se o professor exigir tool calling autônomo, expandir
+para uma etapa posterior (veja item 9).
+
+5. POR QUE NÃO DEIXAR O LLM GERAR HORÁRIOS LIVREMENTE?
+Modelos podem inventar tarefas, exceder horas ou descumprir prazos. Por isso,
+regras fixas fazem alocação e checagem. O modelo contribui onde há interpretação.
+Esse limite entre autonomia e controle está alinhado ao último slide do PDF.
+
+6. MEMÓRIA, DADOS E FERRAMENTAS
+SQLite local preserva tarefas, propostas, aprovação e traces por execução.
+A ferramenta tools_get_tasks oferece apenas leitura; o modelo não recebe SQL,
+credenciais, shell, internet ou permissão de escrita. Ações de escrita da API
+exigem solicitação do usuário. O acesso Ollama é restrito a localhost.
+
+7. QUALIDADE E CRITÉRIOS DE SUCESSO
+Há testes automatizados para dados inválidos, integração, aprovação, pendências,
+IDs inventados e violação de capacidade. Traces guardam o caminho decisório.
+No GitHub, o arquivo de banco *.db é ignorado e não contém dados de terceiros.
+
+8. RISCOS, LIMITAÇÕES E MELHORIAS
+A duração das tarefas é estimada pelo usuário. O algoritmo guloso não é ótimo;
+reserva no máximo uma sessão de 60 min por tarefa e por dia. Sem login,
+distribuição por horário, disponibilidade por dia, feriados ou integração externa.
+Um plano proposto não é automaticamente aplicado. LLM local depende de Ollama.
+
+9. POSSÍVEIS EXPANSÕES
+- Tool calling com ferramentas estritamente autorizadas (consultar, simular cenário,
+  comparar planos), controle de iterações e validação de argumentos.
+- Calendário com horários e disponibilidade variável.
+- Suite de avaliações com dezenas de cenários e métricas de cobertura de tarefas.
+- Autenticação e API segura, caso se queira implantação fora do computador local.
+
+10. O QUE FOI INFERIDO
+O enunciado não especifica tema, linguagem, stack, número mínimo de agentes ou
+provedor de IA. Escolhi Python + biblioteca padrão + HTML/JS + SQLite por
+simplicidade de instalação, possibilidade de demonstração e testes.
+
+11. COMO REPRODUZIR
+Python 3.10 ou superior, em uma pasta com o projeto:
+  python -m unittest discover -s tests -v
+  python -m src.server
+Acessar http://127.0.0.1:8000, carregar exemplos, gerar plano em modo DEMO,
+examinar o trace e registrar aprovação. Para IA REAL, instalar e executar Ollama
+com o modelo llama3.2:3b e escolher o modo OLLAMA. Nunca confundir os dois modos.
